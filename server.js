@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const db = require('./db');
 
 app.use(express.json());
 app.use(express.urlencoded( {extended: true}));
@@ -7,11 +8,37 @@ app.use(express.urlencoded( {extended: true}));
 app.set("view engine" ,"hbs");
 
 app.get('/', (req,res) => {
-    res.render('persons', {
-        persons: [
-            {name: 'ABC', age: 22, city: 'Bhopal'},
-            {name: 'DEF', age: 20, city: 'Indore'}
-        ]
+    db.getAllPersons()
+        .then((persons)=>{
+
+            res.render('persons', {
+                // persons: [
+                //     {name: 'ABC', age: 22, city: 'Bhopal'},
+                //     {name: 'DEF', age: 20, city: 'Indore'}
+                // ]
+                persons
+            })
+
+        })
+        .catch((err)=>{
+            res.send(err);
+        })
+
+   
+})
+
+app.get('/add',(req,res) =>{
+        res.render('persons_add');
+})
+
+app.post('/add', (req,res) =>{
+    // res.render('persons_add');
+    db.addNewPerson(req.body.name,req.body.age,req.body.city)
+    .then(()=>{
+        res.redirect('/');
+    })
+    .catch((err)=>{
+        res.send(err);
     })
 })
 
